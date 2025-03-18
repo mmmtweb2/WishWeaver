@@ -883,262 +883,216 @@
             currentEventIcon = '';
         }
         // פונקציית שיתוף הכרטיס
-        // פונקציית שיתוף משופרת
-function shareCard() {
-    // יצירת תמונה של הכרטיס לשיתוף
-    html2canvas(document.getElementById('card-preview')).then(canvas => {
-        // קבלת נתוני התמונה כקובץ בפורמט BASE64
-        const imageData = canvas.toDataURL('image/png');
-        
-        // יצירת חלונית שיתוף משופרת
-        const shareDialog = document.createElement('div');
-        shareDialog.className = 'share-options';
-        shareDialog.innerHTML = `
-            <div class="share-overlay" onclick="closeShareOptions()"></div>
-            <div class="share-dialog">
-                <h3>שיתוף כרטיס ברכה</h3>
-                <div class="share-preview">
-                    <img src="${imageData}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                </div>
-                <div class="share-description">
-                    <p>הכרטיס מוכן לשיתוף! בחר אחת מהאפשרויות:</p>
-                </div>
-                <div class="share-buttons">
-                    <button onclick="directShare('whatsapp', '${imageData}')"><i class="icon">📱</i> וואטסאפ</button>
-                    <button onclick="directShare('email', '${imageData}')"><i class="icon">✉️</i> אימייל</button>
-                    <button onclick="directShare('copy', '${imageData}')"><i class="icon">🔗</i> העתק קישור</button>
-                    <button onclick="directShare('download', '${imageData}')"><i class="icon">🖼️</i> הורד תמונה</button>
-                </div>
-                <div class="share-note">
-                    <small>* השיתוף יכלול את הכרטיס המעוצב בדיוק כפי שהוא מופיע כאן.</small>
-                </div>
-                <button class="close-btn" onclick="closeShareOptions()">סגור</button>
-            </div>
-        `;
-        
-        document.body.appendChild(shareDialog);
-    });
-}
-
-// שיתוף ישיר ללא צורך בצעדים נוספים
-function directShare(method, imageData) {
-    const cardMessage = document.getElementById('card-message').innerText;
-    const cardSignature = document.getElementById('card-signature').innerText;
-    const shareParams = createShareParameters();
-    const shareUrl = window.location.href.split('?')[0] + '?' + shareParams;
-    
-    switch(method) {
-        case 'whatsapp':
-            // מימוש שיתוף ישיר לוואטסאפ
-            shareViaWhatsAppDirect(imageData, cardMessage, cardSignature, shareUrl);
-            break;
-        case 'email':
-            // מימוש שיתוף ישיר לאימייל
-            shareViaEmailDirect(imageData, cardMessage, cardSignature, shareUrl);
-            break;
-        case 'copy':
-            // העתקת קישור ללוח
-            navigator.clipboard.writeText(shareUrl)
-                .then(() => {
-                    showShareMessage('הקישור הועתק ללוח');
-                })
-                .catch(err => {
-                    // גישה חלופית להעתקת הקישור אם ה-API לא נתמך
-                    const tempInput = document.createElement('input');
-                    document.body.appendChild(tempInput);
-                    tempInput.value = shareUrl;
-                    tempInput.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                    showShareMessage('הקישור הועתק ללוח');
+        function shareCard() {
+            // יצירת תמונה של הכרטיס לשיתוף
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // קבלת נתוני התמונה כקובץ בפורמט BASE64
+                const imageData = canvas.toDataURL('image/png');
+                
+                // יצירת חלונית שיתוף משופרת
+                const shareDialog = document.createElement('div');
+                shareDialog.className = 'share-options';
+                shareDialog.innerHTML = `
+                    <div class="share-overlay" onclick="closeShareOptions()"></div>
+                    <div class="share-dialog">
+                        <h3>שיתוף כרטיס ברכה</h3>
+                        <div class="share-preview">
+                            <img src="${imageData}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                        </div>
+                        <div class="share-description">
+                            <p>הכרטיס מוכן לשיתוף! בחר אחת מהאפשרויות:</p>
+                        </div>
+                        <div class="share-buttons">
+                            <button id="whatsapp-share-btn"><i class="icon">📱</i> וואטסאפ</button>
+                            <button id="email-share-btn"><i class="icon">✉️</i> אימייל</button>
+                            <button id="copy-share-btn"><i class="icon">🔗</i> העתק קישור</button>
+                            <button id="download-share-btn"><i class="icon">🖼️</i> הורד תמונה</button>
+                        </div>
+                        <div class="share-note">
+                            <small>* השיתוף יכלול את הכרטיס המעוצב בדיוק כפי שהוא מופיע כאן.</small>
+                        </div>
+                        <button class="close-btn" id="close-share-btn">סגור</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(shareDialog);
+                
+                // הוספת מאזיני אירועים לכפתורים
+                document.getElementById('whatsapp-share-btn').addEventListener('click', function() {
+                    shareViaWhatsAppDirect(imageData);
                 });
-            break;
-        case 'download':
-            // הורדה ישירה של התמונה
+                
+                document.getElementById('email-share-btn').addEventListener('click', function() {
+                    shareViaEmailDirect(imageData);
+                });
+                
+                document.getElementById('copy-share-btn').addEventListener('click', function() {
+                    copyShareLink();
+                });
+                
+                document.getElementById('download-share-btn').addEventListener('click', function() {
+                    downloadCardImage(imageData);
+                });
+                
+                document.getElementById('close-share-btn').addEventListener('click', function() {
+                    closeShareOptions();
+                });
+            });
+        }
+
+        // סגירת חלון אפשרויות השיתוף
+        function closeShareOptions() {
+            const shareOptions = document.querySelector('.share-options');
+            if (shareOptions) {
+                shareOptions.remove();
+            }
+        }
+
+        // שיתוף ישיר לוואטסאפ
+        function shareViaWhatsAppDirect(imageData) {
+            const cardMessage = document.getElementById('card-message').innerText;
+            const cardSignature = document.getElementById('card-signature').innerText;
+            const shareParams = createShareParameters();
+            const shareUrl = window.location.href.split('?')[0] + '?' + shareParams;
+            
+            // יצירת טקסט לשיתוף בוואטסאפ
+            const encodedText = encodeURIComponent(`${cardMessage}\n- ${cardSignature}\n\nלצפייה ועריכה של הכרטיס: ${shareUrl}`);
+            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+            
+            // פתיחת וואטסאפ
+            window.open(whatsappUrl, '_blank');
+            
+            // הורדת התמונה
             const downloadLink = document.createElement('a');
             downloadLink.href = imageData;
-            downloadLink.download = `כרטיס-ברכה-${new Date().toLocaleDateString('he-IL')}.png`;
+            downloadLink.download = `כרטיס-ברכה-${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.png`;
             downloadLink.click();
-            showShareMessage('התמונה הורדה בהצלחה');
-            break;
-    }
-}
-
-// שיתוף ישיר לוואטסאפ
-function shareViaWhatsAppDirect(imageData, message, signature, shareUrl) {
-    // פתיחת חלון לשיתוף בוואטסאפ
-    const encodedText = encodeURIComponent(`${message}\n- ${signature}\n\nלצפייה ועריכה של הכרטיס: ${shareUrl}`);
-    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-    
-    // לפני שיתוף בוואטסאפ - נציג חלון אישור
-    const confirmDialog = document.createElement('div');
-    confirmDialog.className = 'confirmation-modal';
-    confirmDialog.innerHTML = `
-        <div class="confirmation-overlay" onclick="closeConfirmation()"></div>
-        <div class="confirmation-dialog">
-            <h3>שיתוף בוואטסאפ</h3>
-            <div class="confirmation-preview">
-                <img src="${imageData}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-            </div>
-            <p>כרטיס הברכה מוכן לשיתוף! בלחיצה על "המשך" ייפתח וואטסאפ עם קישור לכרטיס.</p>
-            <p class="confirmation-note">בחר את הנמען ושלח!</p>
-            <div class="confirmation-buttons">
-                <button onclick="window.open('${whatsappUrl}', '_blank'); closeConfirmation(); showShareMessage('וואטסאפ נפתח עם הכרטיס');" class="primary-btn">המשך לוואטסאפ</button>
-                <button onclick="closeConfirmation();" class="secondary-btn">ביטול</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(confirmDialog);
-    closeShareOptions();
-}
-
-// שיתוף ישיר לאימייל
-function shareViaEmailDirect(imageData, message, signature, shareUrl) {
-    // יצירת נושא והודעה לאימייל
-    const subject = 'כרטיס ברכה מיוחד עבורך';
-    const body = `${message}\n\n${signature}\n\nלצפייה ועריכה של הכרטיס: ${shareUrl}`;
-    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    // לפני שיתוף באימייל - נציג חלון אישור
-    const confirmDialog = document.createElement('div');
-    confirmDialog.className = 'confirmation-modal';
-    confirmDialog.innerHTML = `
-        <div class="confirmation-overlay" onclick="closeConfirmation()"></div>
-        <div class="confirmation-dialog">
-            <h3>שיתוף באימייל</h3>
-            <div class="confirmation-preview">
-                <img src="${imageData}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-            </div>
-            <p>כרטיס הברכה מוכן לשיתוף! בלחיצה על "המשך" ייפתח האימייל שלך עם הכרטיס.</p>
-            <p class="confirmation-note">* תוכל לצרף את התמונה כקובץ להודעה.</p>
-            <div class="confirmation-buttons">
-                <button onclick="window.location.href='${mailtoUrl}'; closeConfirmation(); showShareMessage('האימייל נפתח עם הכרטיס');" class="primary-btn">המשך לאימייל</button>
-                <button onclick="closeConfirmation();" class="secondary-btn">ביטול</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(confirmDialog);
-    closeShareOptions();
-}
-
-// סגירת חלון האישור
-function closeConfirmation() {
-    const confirmationModal = document.querySelector('.confirmation-modal');
-    if (confirmationModal) {
-        confirmationModal.remove();
-    }
-}
-
-// הצגת הודעת שיתוף
-function showShareMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'share-message';
-    messageElement.textContent = message;
-    document.body.appendChild(messageElement);
-    
-    // הצגת ההודעה עם אנימציה
-    setTimeout(() => {
-        messageElement.style.display = 'block';
-        messageElement.style.opacity = '1';
-        messageElement.style.transform = 'translateY(0)';
-    }, 100);
-    
-    // הסרת ההודעה אחרי 3 שניות
-    setTimeout(() => {
-        messageElement.style.opacity = '0';
-        messageElement.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            messageElement.remove();
-        }, 500);
-    }, 3000);
-    
-    // סגירת חלון השיתוף
-    closeShareOptions();
-}
-
-// סגנון CSS נוסף לחלונות השיתוף
-const additionalStyles = `
-    .share-dialog {
-        animation: fadeInScale 0.3s ease-out;
-    }
-    
-    .share-description {
-        margin: 10px 0;
-    }
-    
-    .share-note {
-        margin-top: 10px;
-        color: #666;
-    }
-    
-    .confirmation-dialog {
-        animation: fadeInScale 0.3s ease-out;
-    }
-    
-    .confirmation-note {
-        font-size: 14px;
-        color: #666;
-        margin-top: 5px;
-    }
-    
-    .primary-btn {
-        background: linear-gradient(to right, #4CAF50, #45a049);
-        color: white;
-        border: none;
-        padding: 12px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .primary-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    .secondary-btn {
-        background: #e0e0e0;
-        color: #333;
-    }
-    
-    .share-message {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: #4CAF50;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 50px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        z-index: 102;
-        display: none;
-        opacity: 0;
-        transition: opacity 0.3s, transform 0.3s;
-    }
-    
-    @keyframes fadeInScale {
-        0% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.9);
+            
+            // הצגת הודעת אישור
+            showShareMessage('הכרטיס נשלח לוואטסאפ והתמונה הורדה');
+            
+            // סגירת חלון השיתוף
+            closeShareOptions();
         }
-        100% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+
+        // שיתוף ישיר לאימייל
+        function shareViaEmailDirect(imageData) {
+            const cardMessage = document.getElementById('card-message').innerText;
+            const cardSignature = document.getElementById('card-signature').innerText;
+            const shareParams = createShareParameters();
+            const shareUrl = window.location.href.split('?')[0] + '?' + shareParams;
+            
+            // יצירת נושא והודעה לאימייל
+            const subject = 'כרטיס ברכה מיוחד עבורך';
+            const body = `${cardMessage}\n\n${cardSignature}\n\nלצפייה ועריכה של הכרטיס: ${shareUrl}`;
+            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // פתיחת תוכנת האימייל
+            window.location.href = mailtoUrl;
+            
+            // הורדת התמונה
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageData;
+            downloadLink.download = `כרטיס-ברכה-${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.png`;
+            downloadLink.click();
+            
+            // הצגת הודעת אישור
+            showShareMessage('האימייל נפתח והתמונה הורדה');
+            
+            // סגירת חלון השיתוף
+            closeShareOptions();
         }
-    }
-`;
 
-// הוספת הסגנון לעמוד
-document.addEventListener('DOMContentLoaded', function() {
-    const style = document.createElement('style');
-    style.textContent = additionalStyles;
-    document.head.appendChild(style);
-});
+        // העתקת קישור השיתוף ללוח
+        function copyShareLink() {
+            const shareParams = createShareParameters();
+            const shareUrl = window.location.href.split('?')[0] + '?' + shareParams;
+            
+            // העתקת הקישור ללוח
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = shareUrl;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            // הצגת הודעת אישור
+            showShareMessage('הקישור הועתק ללוח');
+            
+            // סגירת חלון השיתוף
+            closeShareOptions();
+        }
 
+        // הורדת תמונת הכרטיס
+        function downloadCardImage(imageData) {
+            // הורדת התמונה
+            const link = document.createElement('a');
+            link.download = `כרטיס-ברכה-${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.png`;
+            link.href = imageData;
+            link.click();
+            
+            // הצגת הודעת אישור
+            showShareMessage('התמונה נשמרה למחשב שלך');
+            
+            // סגירת חלון השיתוף
+            closeShareOptions();
+        }
+
+        // פונקציה ליצירת פרמטרים לשיתוף בקישור
+        function createShareParameters() {
+            const message = encodeURIComponent(document.getElementById('message').value);
+            const signature = encodeURIComponent(document.getElementById('signature').value);
+            const bgType = document.getElementById('background-type').value;
+            const textColor = encodeURIComponent(document.getElementById('text-color').value);
+            const fontFamily = encodeURIComponent(document.getElementById('font-family').value);
+            const fontSize = encodeURIComponent(document.getElementById('font-size').value);
+            const fontStyle = encodeURIComponent(document.getElementById('font-style').value);
+            const website = encodeURIComponent(document.getElementById('website').value);
+            const websiteText = encodeURIComponent(document.getElementById('website-text').value);
+            
+            // מידע על הרקע
+            let bgInfo = '';
+            if (bgType === 'color' || bgType === 'gradient' || bgType === 'pattern') {
+                bgInfo = encodeURIComponent(currentBackground);
+            } else if (bgType === 'event') {
+                bgInfo = encodeURIComponent(currentBackground);
+            }
+            
+            return `msg=${message}&sig=${signature}&bgType=${bgType}&bgInfo=${bgInfo}&txtColor=${textColor}&font=${fontFamily}&fontSize=${fontSize}&fontStyle=${fontStyle}&website=${website}&websiteText=${websiteText}`;
+        }
+
+        // הצגת הודעת שיתוף
+        function showShareMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'share-message';
+            messageElement.textContent = message;
+            messageElement.style.position = 'fixed';
+            messageElement.style.bottom = '20px';
+            messageElement.style.left = '50%';
+            messageElement.style.transform = 'translateX(-50%)';
+            messageElement.style.background = '#4CAF50';
+            messageElement.style.color = 'white';
+            messageElement.style.padding = '10px 20px';
+            messageElement.style.borderRadius = '5px';
+            messageElement.style.zIndex = '102';
+            messageElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+            
+            document.body.appendChild(messageElement);
+            
+            // הצגת ההודעה
+            setTimeout(() => {
+                messageElement.style.display = 'block';
+            }, 100);
+            
+            // הסרת ההודעה אחרי 3 שניות
+            setTimeout(() => {
+                messageElement.style.opacity = '0';
+                messageElement.style.transition = 'opacity 0.5s';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 500);
+            }, 3000);
+        }
         // טעינת כרטיס מפרמטרים בכתובת האתר
         function loadCardFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
