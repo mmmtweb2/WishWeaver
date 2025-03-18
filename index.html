@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יוצר כרטיסי ברכה</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .card-preview {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        .card-content {
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+        .card-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+        .card-signature {
+            font-size: 18px;
+            font-style: italic;
+        }
+        .card-footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .card-footer a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .card-footer a:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3e8e41;
+        }
+        button.share {
+            background-color: #3498db;
+        }
+        button.share:hover {
+            background-color: #2980b9;
+        }
+        .background-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .bg-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .bg-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .event-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .event-option {
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .event-option:hover {
+            transform: scale(1.05);
+        }
+        .event-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .event-icon {
+            font-size: 24px;
+        }
+        .event-name {
+            font-size: 14px;
+        }
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>יוצר כרטיסי ברכה וירטואליים</h1>
+        
+        <div class="controls">
+            <div class="form-group">
+                <label for="message">הודעת הברכה:</label>
+                <textarea id="message" placeholder="כתוב את הודעת הברכה כאן...">מאחל לך יום הולדת שמח!</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="signature">חתימה:</label>
+                <input type="text" id="signature" placeholder="מי שולח את הברכה?" value="משפחת ישראלי">
+            </div>
+            
+            
+            
+            <div class="form-group">
+                <label for="background-type">סוג רקע:</label>
+                <select id="background-type">
+                    <option value="color">צבע אחיד</option>
+                    <option value="gradient">גרדיאנט</option>
+                    <option value="pattern">דוגמה</option>
+                    <option value="event">אירוע</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="color-selection">
+                <label>בחר צבע:</label>
+                <div class="color-picker">
+                    <div class="color-option" style="background-color: #e74c3c;" onclick="setBackgroundColor('#e74c3c')"></div>
+                    <div class="color-option" style="background-color: #3498db;" onclick="setBackgroundColor('#3498db')"></div>
+                    <div class="color-option" style="background-color: #2ecc71;" onclick="setBackgroundColor('#2ecc71')"></div>
+                    <div class="color-option" style="background-color: #f1c40f;" onclick="setBackgroundColor('#f1c40f')"></div>
+                    <div class="color-option" style="background-color: #9b59b6;" onclick="setBackgroundColor('#9b59b6')"></div>
+                    <div class="color-option" style="background-color: #e67e22;" onclick="setBackgroundColor('#e67e22')"></div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="gradient-selection" style="display: none;">
+                <label>בחר גרדיאנט:</label>
+                <div class="background-selection">
+                    <div class="bg-option" style="background: linear-gradient(to right, #ff416c, #ff4b2b);" onclick="setBackgroundGradient('linear-gradient(to right, #ff416c, #ff4b2b)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #56ccf2, #2f80ed);" onclick="setBackgroundGradient('linear-gradient(to right, #56ccf2, #2f80ed)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #f2994a, #f2c94c);" onclick="setBackgroundGradient('linear-gradient(to right, #f2994a, #f2c94c)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #7b4397, #dc2430);" onclick="setBackgroundGradient('linear-gradient(to right, #7b4397, #dc2430)')"></div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="pattern-selection" style="display: none;">
+                <label>בחר דוגמה:</label>
+                <div class="background-selection">
+                    <div class="bg-option" style="background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);" onclick="setBackgroundPattern('repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px)')"></div>
+                    <div class="bg-option" style="background: radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#c1c1c1 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #c1c1c1 2px, #e8e8e8 2px) -1px 0;" onclick="setBackgroundPattern('radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#c1c1c1 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #c1c1c1 2px, #e8e8e8 2px) -1px 0;')"></div>
+                    <div class="bg-option" style="background-color: #e5e5f7; background-image:  linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777); background-size: 20px 35px; background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;" onclick="setBackgroundPattern('background-color: #e5e5f7; background-image:  linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777); background-size: 20px 35px; background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;')"></div>
+                </div>
+            </div>
+            <div class="form-group" id="event-selection" style="display: none;">
+                <label>בחר אירוע:</label>
+                <div class="background-selection event-selection">
+                    <div class="event-option" data-event="birthday" onclick="setEventBackground('birthday')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);">
+                            <div class="event-icon">🎂</div>
+                        </div>
+                        <div class="event-name">יום הולדת</div>
+                    </div>
+                    <div class="event-option" data-event="wedding" onclick="setEventBackground('wedding')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%);">
+                            <div class="event-icon">💍</div>
+                        </div>
+                        <div class="event-name">חתונה</div>
+                    </div>
+                    <div class="event-option" data-event="newborn" onclick="setEventBackground('newborn')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%);">
+                            <div class="event-icon">👶</div>
+                        </div>
+                        <div class="event-name">לידה</div>
+                    </div>
+                    <div class="event-option" data-event="graduation" onclick="setEventBackground('graduation')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">
+                            <div class="event-icon">🎓</div>
+                        </div>
+                        <div class="event-name">סיום לימודים</div>
+                    </div>
+                    <div class="event-option" data-event="holiday" onclick="setEventBackground('holiday')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);">
+                            <div class="event-icon">✡️</div>
+                        </div>
+                        <div class="event-name">חג</div>
+                    </div>
+                    <div class="event-option" data-event="anniversary" onclick="setEventBackground('anniversary')">
+                        <div class="event-preview" style="background: linear-gradient(135deg, #EC407A 0%, #C2185B 100%);">
+                            <div class="event-icon">❤️</div>
+                        </div>
+                        <div class="event-name">יום נישואין</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="text-color">צבע טקסט:</label>
+                <select id="text-color" onchange="setTextColor(this.value)">
+                    <option value="#ffffff">לבן</option>
+                    <option value="#000000">שחור</option>
+                    <option value="#e74c3c">אדום</option>
+                    <option value="#3498db">כחול</option>
+                    <option value="#2ecc71">ירוק</option>
+                    <option value="#f1c40f">צהוב</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-family">סגנון גופן:</label>
+                <select id="font-family" onchange="setFontFamily(this.value)">
+                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">רגיל</option>
+                    <option value="'Arial Hebrew', Arial, sans-serif">אריאל</option>
+                    <option value="'Courier New', Courier, monospace">קוריאר</option>
+                    <option value="'Times New Roman', Times, serif">טיימס</option>
+                    <option value="'David', 'David Libre', serif">דוד</option>
+                    <option value="'Miriam', 'Miriam Libre', sans-serif">מרים</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-size">גודל גופן:</label>
+                <select id="font-size" onchange="setFontSize(this.value)">
+                    <option value="18px">קטן</option>
+                    <option value="24px" selected>בינוני</option>
+                    <option value="32px">גדול</option>
+                    <option value="42px">גדול מאוד</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-style">סגנון כתב:</label>
+                <select id="font-style" onchange="setFontStyle(this.value)">
+                    <option value="normal">רגיל</option>
+                    <option value="italic">נטוי</option>
+                    <option value="bold">מודגש</option>
+                    <option value="bold italic">מודגש ונטוי</option>
+                </select>
+            </div>
+            
+            <div class="buttons">
+                <button onclick="resetCard()">איפוס</button>
+                <button class="share" onclick="shareCard()">שיתוף</button>
+            </div>
+        </div>
+        
+        <div class="card-preview" id="card-preview">
+            <div class="card-content">
+                <div class="card-icon" id="card-icon"></div>
+                <div class="card-message" id="card-message">מאחל לך יום הולדת שמח!</div>
+                <div class="card-signature" id="card-signature">משפחת ישראלי</div>
+                <div class="card-footer">
+                    <a href="https://www.yourwebsite.com" target="_blank" id="website-link">נוצר על ידי יוצר כרטיסי הברכה</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Default settings
+        let currentBackground = '#3498db';
+        let currentBackgroundType = 'color';
+        let currentTextColor = '#ffffff';
+        let currentFontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        let currentFontSize = '24px';
+        let currentFontStyle = 'normal';
+        let currentFontWeight = 'normal';
+        let currentEventIcon = '';
+        
+        // Initialize card
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default styles
+            document.getElementById('card-preview').style.backgroundColor = currentBackground;
+            document.getElementById('card-message').style.color = currentTextColor;
+            document.getElementById('card-signature').style.color = currentTextColor;
+            
+            // Add event listeners
+            document.getElementById('message').addEventListener('input', updateCardMessage);
+            document.getElementById('signature').addEventListener('input', updateCardSignature);
+            document.getElementById('background-type').addEventListener('change', changeBackgroundType);
+            document.getElementById('website').addEventListener('input', updateWebsiteLink);
+            document.getElementById('website-text').addEventListener('input', updateWebsiteLink);
+            
+            // Initialize website link
+            updateWebsiteLink();
+            
+            // Check for URL parameters on load
+            loadCardFromUrl();
+        });
+
+        // Update card message
+        function updateCardMessage() {
+            const message = document.getElementById('message').value;
+            document.getElementById('card-message').innerText = message;
+        }
+
+        // Update card signature
+        function updateCardSignature() {
+            const signature = document.getElementById('signature').value;
+            document.getElementById('card-signature').innerText = signature;
+        }
+        
+        // Update website link
+        function updateWebsiteLink() {
+            const websiteUrl = document.getElementById('website').value;
+            const websiteText = document.getElementById('website-text').value;
+            const websiteLink = document.getElementById('website-link');
+            
+            websiteLink.href = websiteUrl;
+            websiteLink.innerText = websiteText;
+        }
+        
+        // Change background type display
+        function changeBackgroundType() {
+            const type = document.getElementById('background-type').value;
+            
+            document.getElementById('color-selection').style.display = 'none';
+            document.getElementById('gradient-selection').style.display = 'none';
+            document.getElementById('pattern-selection').style.display = 'none';
+            document.getElementById('event-selection').style.display = 'none';
+            
+            document.getElementById(type + '-selection').style.display = 'block';
+        }
+
+        // Set solid background color
+        function setBackgroundColor(color) {
+            const cardPreview = document.getElementById('card-preview');
+            cardPreview.style.background = color;
+            cardPreview.style.backgroundImage = 'none';
+            currentBackground = color;
+            currentBackgroundType = 'color';
+            
+            // Hide icon when using regular backgrounds
+            document.getElementById('card-icon').style.display = 'none';
+        }
+
+        // Set gradient background
+        function setBackgroundGradient(gradient) {
+            document.getElementById('card-preview').style.background = gradient;
+            currentBackground = gradient;
+            currentBackgroundType = 'gradient';
+            
+            // Hide icon when using regular backgrounds
+            document.getElementById('card-icon').style.display = 'none';
+        }
+
+        // Set pattern background
+        function setBackgroundPattern(pattern) {
+            document.getElementById('card-preview').style.cssText = pattern;
+            currentBackground = pattern;
+            currentBackgroundType = 'pattern';
+            
+            // Hide icon when using regular backgrounds
+            document.getElementById('card-icon').style.display = 'none';
+        }
+
+        // Set event background with icon
+        function setEventBackground(eventType) {
+            const cardPreview = document.getElementById('card-preview');
+            const cardIcon = document.getElementById('card-icon');
+            
+            // Reset any previous backgrounds and styles
+            cardPreview.style = '';
+            
+            // Set background and icon based on event type
+            switch(eventType) {
+                case 'birthday':
+                    cardPreview.style.background = 'linear-gradient(135deg, #FFC107 0%, #FF9800 100%)';
+                    cardIcon.innerHTML = '🎂';
+                    break;
+                case 'wedding':
+                    cardPreview.style.background = 'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)';
+                    cardIcon.innerHTML = '💍';
+                    break;
+                case 'newborn':
+                    cardPreview.style.background = 'linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%)';
+                    cardIcon.innerHTML = '👶';
+                    break;
+                case 'graduation':
+                    cardPreview.style.background = 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)';
+                    cardIcon.innerHTML = '🎓';
+                    break;
+                case 'holiday':
+                    cardPreview.style.background = 'linear-gradient(135deg, #42A5F5 0%, #1976D2 100%)';
+                    cardIcon.innerHTML = '✡️';
+                    break;
+                case 'anniversary':
+                    cardPreview.style.background = 'linear-gradient(135deg, #EC407A 0%, #C2185B 100%)';
+                    cardIcon.innerHTML = '❤️';
+                    break;
+            }
+            
+            // Save background information for sharing
+            currentBackground = eventType;
+            currentBackgroundType = 'event';
+            currentEventIcon = cardIcon.innerHTML;
+            
+            // Show the icon
+            cardIcon.style.display = 'block';
+        }
+
+        // Set text color
+        function setTextColor(color) {
+            document.getElementById('card-message').style.color = color;
+            document.getElementById('card-signature').style.color = color;
+            currentTextColor = color;
+        }
+        
+        // Set font family
+        function setFontFamily(fontFamily) {
+            document.getElementById('card-message').style.fontFamily = fontFamily;
+            document.getElementById('card-signature').style.fontFamily = fontFamily;
+        }
+        
+        // Set font size
+        function setFontSize(fontSize) {
+            document.getElementById('card-message').style.fontSize = fontSize;
+        }
+        
+        // Set font style
+        function setFontStyle(style) {
+            if (style === 'normal') {
+                document.getElementById('card-message').style.fontStyle = 'normal';
+                document.getElementById('card-message').style.fontWeight = 'normal';
+            } else if (style === 'italic') {
+                document.getElementById('card-message').style.fontStyle = 'italic';
+                document.getElementById('card-message').style.fontWeight = 'normal';
+            } else if (style === 'bold') {
+                document.getElementById('card-message').style.fontStyle = 'normal';
+                document.getElementById('card-message').style.fontWeight = 'bold';
+            } else if (style === 'bold italic') {
+                document.getElementById('card-message').style.fontStyle = 'italic';
+                document.getElementById('card-message').style.fontWeight = 'bold';
+            }
+        }
+
+        // Reset card to defaults
+        function resetCard() {
+            document.getElementById('message').value = 'מאחל לך יום הולדת שמח!';
+            document.getElementById('signature').value = 'משפחת ישראלי';
+            document.getElementById('background-type').value = 'color';
+            document.getElementById('text-color').value = '#ffffff';
+            document.getElementById('font-family').value = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            document.getElementById('font-size').value = '24px';
+            document.getElementById('font-style').value = 'normal';
+            document.getElementById('website').value = 'https://www.yourwebsite.com';
+            document.getElementById('website-text').value = 'נוצר על ידי יוצר כרטיסי הברכה';
+            
+            changeBackgroundType();
+            setBackgroundColor('#3498db');
+            setTextColor('#ffffff');
+            setFontFamily("'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
+            setFontSize('24px');
+            setFontStyle('normal');
+            updateCardMessage();
+            updateCardSignature();
+            updateWebsiteLink();
+            
+            // Hide icon
+            document.getElementById('card-icon').style.display = 'none';
+            // Reset card to defaults
+            currentBackgroundType = 'color';
+            currentEventIcon = '';
+        }
+
+        // Share card functionality
+        function shareCard() {
+            // First create the image that will be shared
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Store the image data in localStorage for share methods to use
+                localStorage.setItem('cardImage', canvas.toDataURL('image/png'));
+                
+                // Get card data
+                const cardMessage = document.getElementById('card-message').innerText;
+                const cardSignature = document.getElementById('card-signature').innerText;
+                
+                // Create share options
+                const shareOptions = document.createElement('div');
+                shareOptions.className = 'share-options';
+                shareOptions.innerHTML = `
+                    <div class="share-overlay" onclick="closeShareOptions()"></div>
+                    <div class="share-dialog">
+                        <h3>שתף את הכרטיס</h3>
+                        <div class="share-preview">
+                            <img src="${canvas.toDataURL('image/png')}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 150px; border-radius: 8px; margin-bottom: 10px;">
+                        </div>
+                        <div class="share-buttons">
+                            <button onclick="shareViaWhatsApp()"><i class="icon">📱</i> וואטסאפ</button>
+                            <button onclick="shareViaEmail()"><i class="icon">✉️</i> אימייל</button>
+                            <button onclick="shareViaLink()"><i class="icon">🔗</i> קישור</button>
+                            <button onclick="shareViaImage()"><i class="icon">🖼️</i> שמור כתמונה</button>
+                        </div>
+                        <button class="close-btn" onclick="closeShareOptions()">סגור</button>
+                    </div>
+                `;
+                
+                // Add share overlay styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .share-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 100;
+                    }
+                    .share-dialog {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        z-index: 101;
+                        width: 80%;
+                        max-width: 400px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                        text-align: center;
+                    }
+                    .share-preview {
+                        margin: 10px 0;
+                        text-align: center;
+                    }
+                    .share-buttons {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 10px;
+                        margin: 20px 0;
+                    }
+                    .share-buttons button {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 15px;
+                        background: #f5f5f5;
+                        color: #333;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: background 0.2s;
+                    }
+                    .share-buttons button:hover {
+                        background: #e0e0e0;
+                    }
+                    .icon {
+                        font-size: 24px;
+                        margin-bottom: 5px;
+                    }
+                    .close-btn {
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        padding: 8px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                    .share-message {
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: #4CAF50;
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        z-index: 102;
+                        display: none;
+                    }
+                `;
+                
+                document.head.appendChild(style);
+                document.body.appendChild(shareOptions);
+            });
+        }
+        
+        function closeShareOptions() {
+            const shareOptions = document.querySelector('.share-options');
+            if (shareOptions) {
+                shareOptions.remove();
+            }
+        }
+        
+        function shareViaWhatsApp() {
+            // First create the image
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Store the image in localStorage
+                const imageData = canvas.toDataURL('image/png');
+                localStorage.setItem('cardImage', imageData);
+                
+                // Since WhatsApp doesn't allow direct image sharing via URL, we'll give instructions
+                const text = `${document.getElementById('card-message').innerText} - ${document.getElementById('card-signature').innerText}`;
+                const encodedText = encodeURIComponent(text + "\n\nכרטיס ברכה נשלח אליך! פתח את הקישור כדי לצפות בו.");
+                const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+                
+                // Open WhatsApp
+                window.open(whatsappUrl, '_blank');
+                
+                // Download the image automatically
+                const link = document.createElement('a');
+                link.download = 'כרטיס-ברכה.png';
+                link.href = imageData;
+                link.click();
+                
+                showShareMessage('הכרטיס נשלח והתמונה הורדה למחשב');
+            });
+        }
+        
+        function shareViaEmail() {
+            // Create the image
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Get image data
+                const imageData = canvas.toDataURL('image/png');
+                localStorage.setItem('cardImage', imageData);
+                
+                const subject = 'כרטיס ברכה מיוחד עבורך';
+                const body = `${document.getElementById('card-message').innerText}\n\n${document.getElementById('card-signature').innerText}\n\nלצפייה בכרטיס הברכה המעוצב, פתח את הקובץ המצורף.`;
+                const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                
+                // Open email client
+                window.location.href = mailtoUrl;
+                
+                // Download the image automatically
+                const link = document.createElement('a');
+                link.download = 'כרטיס-ברכה.png';
+                link.href = imageData;
+                link.click();
+                
+                showShareMessage('האימייל נפתח והתמונה הורדה למחשב');
+            });
+        }
+        
+        function shareViaLink() {
+            // Generate URL with parameters based on current card state
+            const message = encodeURIComponent(document.getElementById('message').value);
+            const signature = encodeURIComponent(document.getElementById('signature').value);
+            const bgType = document.getElementById('background-type').value;
+            const textColor = encodeURIComponent(document.getElementById('text-color').value);
+            const fontFamily = encodeURIComponent(document.getElementById('font-family').value);
+            const fontSize = encodeURIComponent(document.getElementById('font-size').value);
+            const fontStyle = encodeURIComponent(document.getElementById('font-style').value);
+            const website = encodeURIComponent(document.getElementById('website').value);
+            const websiteText = encodeURIComponent(document.getElementById('website-text').value);
+            
+            // Background info
+            let bgInfo = '';
+            if (bgType === 'color' || bgType === 'gradient' || bgType === 'pattern') {
+                bgInfo = encodeURIComponent(currentBackground);
+            } else if (bgType === 'event') {
+                bgInfo = encodeURIComponent(currentBackground); // currentBackground holds the event type
+            }
+            
+            const shareableUrl = `${window.location.href.split('?')[0]}?msg=${message}&sig=${signature}&bgType=${bgType}&bgInfo=${bgInfo}&txtColor=${textColor}&font=${fontFamily}&fontSize=${fontSize}&fontStyle=${fontStyle}&website=${website}&websiteText=${websiteText}`;
+            
+            // First create an image that we can use for sharing
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Store the image data in localStorage for other share methods to use
+                localStorage.setItem('cardImage', canvas.toDataURL('image/png'));
+                
+                // העתקה ללוח
+                const tempInput = document.createElement('input');
+                document.body.appendChild(tempInput);
+                tempInput.value = shareableUrl;
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                showShareMessage('הקישור הועתק ללוח');
+            });
+        }
+        
+        function shareViaImage() {
+            // Use html2canvas to create an image
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Create a download link
+                const link = document.createElement('a');
+                link.download = 'כרטיס-ברכה.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Store the image in localStorage
+                localStorage.setItem('cardImage', canvas.toDataURL('image/png'));
+                
+                showShareMessage('התמונה נשמרה למחשב שלך');
+            });
+        }
+        
+        function showShareMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'share-message';
+            messageElement.textContent = message;
+            document.body.appendChild(messageElement);
+            
+            // הצג את ההודעה
+            setTimeout(() => {
+                messageElement.style.display = 'block';
+            }, 100);
+            
+            // הסר את ההודעה אחרי 3 שניות
+            setTimeout(() => {
+                messageElement.style.opacity = '0';
+                messageElement.style.transition = 'opacity 0.5s';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 500);
+            }, 3000);
+            
+            // סגור את חלון השיתוף
+            closeShareOptions();
+        }
+        
+        // Load card from URL parameters
+        function loadCardFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('msg')) {
+                const message = decodeURIComponent(urlParams.get('msg'));
+                document.getElementById('message').value = message;
+                updateCardMessage();
+            }
+            
+            if (urlParams.has('sig')) {
+                const signature = decodeURIComponent(urlParams.get('sig'));
+                document.getElementById('signature').value = signature;
+                updateCardSignature();
+            }
+            
+            if (urlParams.has('bgType')) {
+                const bgType = urlParams.get('bgType');
+                document.getElementById('background-type').value = bgType;
+                changeBackgroundType();
+                
+                if (urlParams.has('bgInfo')) {
+                    const bgInfo = decodeURIComponent(urlParams.get('bgInfo'));
+                    if (bgType === 'color') {
+                        setBackgroundColor(bgInfo);
+                    } else if (bgType === 'gradient') {
+                        setBackgroundGradient(bgInfo);
+                    } else if (bgType === 'pattern') {
+                        setBackgroundPattern(bgInfo);
+                    } else if (bgType === 'event') {
+                        setEventBackground(bgInfo);
+                    }
+                }
+            }
+            
+            if (urlParams.has('txtColor')) {
+                const textColor = decodeURIComponent(urlParams.get('txtColor'));
+                document.getElementById('text-color').value = textColor;
+                setTextColor(textColor);
+            }
+            
+            if (urlParams.has('font')) {
+                const fontFamily = decodeURIComponent(urlParams.get('font'));
+                document.getElementById('font-family').value = fontFamily;
+                setFontFamily(fontFamily);
+            }
+            
+            if (urlParams.has('fontSize')) {
+                const fontSize = decodeURIComponent(urlParams.get('fontSize'));
+                document.getElementById('font-size').value = fontSize;
+                setFontSize(fontSize);
+            }
+            
+            if (urlParams.has('fontStyle')) {
+                const fontStyle = decodeURIComponent(urlParams.get('fontStyle'));
+                document.getElementById('font-style').value = fontStyle;
+                setFontStyle(fontStyle);
+            }
+            
+            if (urlParams.has('website')) {
+                const website = decodeURIComponent(urlParams.get('website'));
+                document.getElementById('website').value = website;
+            }
+            
+            if (urlParams.has('websiteText')) {
+                const websiteText = decodeURIComponent(urlParams.get('websiteText'));
+                document.getElementById('website-text').value = websiteText;
+            }
+            
+            // Update website link after all parameters are loaded
+            updateWebsiteLink();
+        }
+    </script>
+</body>
+</html>
