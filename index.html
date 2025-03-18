@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יוצר כרטיסי ברכה</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .controls {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .card-preview {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        .card-content {
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+        .card-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+        .card-signature {
+            font-size: 18px;
+            font-style: italic;
+        }
+        .card-footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .card-footer a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .card-footer a:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3e8e41;
+        }
+        button.share {
+            background-color: #3498db;
+        }
+        button.share:hover {
+            background-color: #2980b9;
+        }
+        .background-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .bg-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .bg-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>יוצר כרטיסי ברכה וירטואליים</h1>
+        
+        <div class="controls">
+            <div class="form-group">
+                <label for="message">הודעת הברכה:</label>
+                <textarea id="message" placeholder="כתוב את הודעת הברכה כאן...">מאחל לך יום הולדת שמח!</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="signature">חתימה:</label>
+                <input type="text" id="signature" placeholder="מי שולח את הברכה?" value="משפחת ישראלי">
+            </div>
+            
+            <div class="form-group">
+                <label for="website">כתובת האתר שלך:</label>
+                <input type="text" id="website" placeholder="https://www.yourwebsite.com" value="https://www.yourwebsite.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="website-text">טקסט לקישור:</label>
+                <input type="text" id="website-text" placeholder="נוצר על ידי..." value="נוצר על ידי יוצר כרטיסי הברכה">
+            </div>
+            
+            <div class="form-group">
+                <label for="background-type">סוג רקע:</label>
+                <select id="background-type">
+                    <option value="color">צבע אחיד</option>
+                    <option value="gradient">גרדיאנט</option>
+                    <option value="pattern">דוגמה</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="color-selection">
+                <label>בחר צבע:</label>
+                <div class="color-picker">
+                    <div class="color-option" style="background-color: #e74c3c;" onclick="setBackgroundColor('#e74c3c')"></div>
+                    <div class="color-option" style="background-color: #3498db;" onclick="setBackgroundColor('#3498db')"></div>
+                    <div class="color-option" style="background-color: #2ecc71;" onclick="setBackgroundColor('#2ecc71')"></div>
+                    <div class="color-option" style="background-color: #f1c40f;" onclick="setBackgroundColor('#f1c40f')"></div>
+                    <div class="color-option" style="background-color: #9b59b6;" onclick="setBackgroundColor('#9b59b6')"></div>
+                    <div class="color-option" style="background-color: #e67e22;" onclick="setBackgroundColor('#e67e22')"></div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="gradient-selection" style="display: none;">
+                <label>בחר גרדיאנט:</label>
+                <div class="background-selection">
+                    <div class="bg-option" style="background: linear-gradient(to right, #ff416c, #ff4b2b);" onclick="setBackgroundGradient('linear-gradient(to right, #ff416c, #ff4b2b)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #56ccf2, #2f80ed);" onclick="setBackgroundGradient('linear-gradient(to right, #56ccf2, #2f80ed)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #f2994a, #f2c94c);" onclick="setBackgroundGradient('linear-gradient(to right, #f2994a, #f2c94c)')"></div>
+                    <div class="bg-option" style="background: linear-gradient(to right, #7b4397, #dc2430);" onclick="setBackgroundGradient('linear-gradient(to right, #7b4397, #dc2430)')"></div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="pattern-selection" style="display: none;">
+                <label>בחר דוגמה:</label>
+                <div class="background-selection">
+                    <div class="bg-option" style="background: repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);" onclick="setBackgroundPattern('repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px)')"></div>
+                    <div class="bg-option" style="background: radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#c1c1c1 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #c1c1c1 2px, #e8e8e8 2px) -1px 0;" onclick="setBackgroundPattern('radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #e8e8e8 20%, #e8e8e8 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#c1c1c1 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #c1c1c1 2px, #e8e8e8 2px) -1px 0;')"></div>
+                    <div class="bg-option" style="background-color: #e5e5f7; background-image:  linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777); background-size: 20px 35px; background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;" onclick="setBackgroundPattern('background-color: #e5e5f7; background-image:  linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(30deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(150deg, #444cf7 12%, transparent 12.5%, transparent 87%, #444cf7 87.5%, #444cf7), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777), linear-gradient(60deg, #444cf777 25%, transparent 25.5%, transparent 75%, #444cf777 75%, #444cf777); background-size: 20px 35px; background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;')"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="text-color">צבע טקסט:</label>
+                <select id="text-color" onchange="setTextColor(this.value)">
+                    <option value="#ffffff">לבן</option>
+                    <option value="#000000">שחור</option>
+                    <option value="#e74c3c">אדום</option>
+                    <option value="#3498db">כחול</option>
+                    <option value="#2ecc71">ירוק</option>
+                    <option value="#f1c40f">צהוב</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-family">סגנון גופן:</label>
+                <select id="font-family" onchange="setFontFamily(this.value)">
+                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">רגיל</option>
+                    <option value="'Arial Hebrew', Arial, sans-serif">אריאל</option>
+                    <option value="'Courier New', Courier, monospace">קוריאר</option>
+                    <option value="'Times New Roman', Times, serif">טיימס</option>
+                    <option value="'David', 'David Libre', serif">דוד</option>
+                    <option value="'Miriam', 'Miriam Libre', sans-serif">מרים</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-size">גודל גופן:</label>
+                <select id="font-size" onchange="setFontSize(this.value)">
+                    <option value="18px">קטן</option>
+                    <option value="24px" selected>בינוני</option>
+                    <option value="32px">גדול</option>
+                    <option value="42px">גדול מאוד</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="font-style">סגנון כתב:</label>
+                <select id="font-style" onchange="setFontStyle(this.value)">
+                    <option value="normal">רגיל</option>
+                    <option value="italic">נטוי</option>
+                    <option value="bold">מודגש</option>
+                    <option value="bold italic">מודגש ונטוי</option>
+                </select>
+            </div>
+            
+            <div class="buttons">
+                <button onclick="resetCard()">איפוס</button>
+                <button class="share" onclick="shareCard()">שיתוף</button>
+            </div>
+        </div>
+        
+        <div class="card-preview" id="card-preview">
+            <div class="card-content">
+                <div class="card-message" id="card-message">מאחל לך יום הולדת שמח!</div>
+                <div class="card-signature" id="card-signature">משפחת ישראלי</div>
+                <div class="card-footer">
+                    <a href="https://www.yourwebsite.com" target="_blank" id="website-link">נוצר על ידי יוצר כרטיסי הברכה</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Default settings
+        let currentBackground = '#3498db';
+        let currentTextColor = '#ffffff';
+        let currentFontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        let currentFontSize = '24px';
+        let currentFontStyle = 'normal';
+        let currentFontWeight = 'normal';
+        
+        // Initialize card
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default styles
+            document.getElementById('card-preview').style.backgroundColor = currentBackground;
+            document.getElementById('card-message').style.color = currentTextColor;
+            document.getElementById('card-signature').style.color = currentTextColor;
+            
+            // Add event listeners
+            document.getElementById('message').addEventListener('input', updateCardMessage);
+            document.getElementById('signature').addEventListener('input', updateCardSignature);
+            document.getElementById('background-type').addEventListener('change', changeBackgroundType);
+            document.getElementById('website').addEventListener('input', updateWebsiteLink);
+            document.getElementById('website-text').addEventListener('input', updateWebsiteLink);
+            
+            // Initialize website link
+            updateWebsiteLink();
+            
+            // Check for URL parameters on load
+            loadCardFromUrl();
+        });
+
+        // Update card message
+        function updateCardMessage() {
+            const message = document.getElementById('message').value;
+            document.getElementById('card-message').innerText = message;
+        }
+
+        // Update card signature
+        function updateCardSignature() {
+            const signature = document.getElementById('signature').value;
+            document.getElementById('card-signature').innerText = signature;
+        }
+        
+        // Update website link
+        function updateWebsiteLink() {
+            const websiteUrl = document.getElementById('website').value;
+            const websiteText = document.getElementById('website-text').value;
+            const websiteLink = document.getElementById('website-link');
+            
+            websiteLink.href = websiteUrl;
+            websiteLink.innerText = websiteText;
+        }
+
+        // Change background type display
+        function changeBackgroundType() {
+            const type = document.getElementById('background-type').value;
+            
+            document.getElementById('color-selection').style.display = 'none';
+            document.getElementById('gradient-selection').style.display = 'none';
+            document.getElementById('pattern-selection').style.display = 'none';
+            
+            document.getElementById(type + '-selection').style.display = 'block';
+        }
+
+        // Set solid background color
+        function setBackgroundColor(color) {
+            const cardPreview = document.getElementById('card-preview');
+            cardPreview.style.background = color;
+            cardPreview.style.backgroundImage = 'none';
+            currentBackground = color;
+        }
+
+        // Set gradient background
+        function setBackgroundGradient(gradient) {
+            document.getElementById('card-preview').style.background = gradient;
+            currentBackground = gradient;
+        }
+
+        // Set pattern background
+        function setBackgroundPattern(pattern) {
+            document.getElementById('card-preview').style.cssText = pattern;
+            currentBackground = pattern;
+        }
+
+        // Set text color
+        function setTextColor(color) {
+            document.getElementById('card-message').style.color = color;
+            document.getElementById('card-signature').style.color = color;
+            currentTextColor = color;
+        }
+        
+        // Set font family
+        function setFontFamily(fontFamily) {
+            document.getElementById('card-message').style.fontFamily = fontFamily;
+            document.getElementById('card-signature').style.fontFamily = fontFamily;
+        }
+        
+        // Set font size
+        function setFontSize(fontSize) {
+            document.getElementById('card-message').style.fontSize = fontSize;
+        }
+        
+        // Set font style
+        function setFontStyle(style) {
+            if (style === 'normal') {
+                document.getElementById('card-message').style.fontStyle = 'normal';
+                document.getElementById('card-message').style.fontWeight = 'normal';
+            } else if (style === 'italic') {
+                document.getElementById('card-message').style.fontStyle = 'italic';
+                document.getElementById('card-message').style.fontWeight = 'normal';
+            } else if (style === 'bold') {
+                document.getElementById('card-message').style.fontStyle = 'normal';
+                document.getElementById('card-message').style.fontWeight = 'bold';
+            } else if (style === 'bold italic') {
+                document.getElementById('card-message').style.fontStyle = 'italic';
+                document.getElementById('card-message').style.fontWeight = 'bold';
+            }
+        }
+
+        // Reset card to defaults
+        function resetCard() {
+            document.getElementById('message').value = 'מאחל לך יום הולדת שמח!';
+            document.getElementById('signature').value = 'משפחת ישראלי';
+            document.getElementById('background-type').value = 'color';
+            document.getElementById('text-color').value = '#ffffff';
+            document.getElementById('font-family').value = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            document.getElementById('font-size').value = '24px';
+            document.getElementById('font-style').value = 'normal';
+            document.getElementById('website').value = 'https://www.yourwebsite.com';
+            document.getElementById('website-text').value = 'נוצר על ידי יוצר כרטיסי הברכה';
+            
+            changeBackgroundType();
+            setBackgroundColor('#3498db');
+            setTextColor('#ffffff');
+            setFontFamily("'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
+            setFontSize('24px');
+            setFontStyle('normal');
+            updateCardMessage();
+            updateCardSignature();
+            updateWebsiteLink();
+        }
+
+        // Share card functionality
+        function shareCard() {
+            // Get card data
+            const cardMessage = document.getElementById('card-message').innerText;
+            const cardSignature = document.getElementById('card-signature').innerText;
+            const cardStyle = document.getElementById('card-preview').getAttribute('style');
+            const messageStyle = document.getElementById('card-message').getAttribute('style');
+            
+            // Create share options
+            const shareOptions = document.createElement('div');
+            shareOptions.className = 'share-options';
+            shareOptions.innerHTML = `
+                <div class="share-overlay" onclick="closeShareOptions()"></div>
+                <div class="share-dialog">
+                    <h3>שתף את הכרטיס</h3>
+                    <div class="share-buttons">
+                        <button onclick="shareViaWhatsApp()"><i class="icon">📱</i> וואטסאפ</button>
+                        <button onclick="shareViaEmail()"><i class="icon">✉️</i> אימייל</button>
+                        <button onclick="shareViaLink()"><i class="icon">🔗</i> קישור</button>
+                        <button onclick="shareViaImage()"><i class="icon">🖼️</i> שמור כתמונה</button>
+                    </div>
+                    <button class="close-btn" onclick="closeShareOptions()">סגור</button>
+                </div>
+            `;
+            
+            // Add share overlay styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .share-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 100;
+                }
+                .share-dialog {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    z-index: 101;
+                    width: 80%;
+                    max-width: 400px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    text-align: center;
+                }
+                .share-buttons {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                    margin: 20px 0;
+                }
+                .share-buttons button {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 15px;
+                    background: #f5f5f5;
+                    color: #333;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .share-buttons button:hover {
+                    background: #e0e0e0;
+                }
+                .icon {
+                    font-size: 24px;
+                    margin-bottom: 5px;
+                }
+                .close-btn {
+                    background: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 8px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+                .share-message {
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #4CAF50;
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 102;
+                    display: none;
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(shareOptions);
+        }
+        
+        function closeShareOptions() {
+            const shareOptions = document.querySelector('.share-options');
+            if (shareOptions) {
+                shareOptions.remove();
+            }
+        }
+        
+        function shareViaWhatsApp() {
+            const text = `${document.getElementById('card-message').innerText} - ${document.getElementById('card-signature').innerText}`;
+            const encodedText = encodeURIComponent(text);
+            const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+            window.open(whatsappUrl, '_blank');
+            showShareMessage('הכרטיס נשלח לוואטסאפ');
+        }
+        
+        function shareViaEmail() {
+            const subject = 'כרטיס ברכה מיוחד עבורך';
+            const body = `${document.getElementById('card-message').innerText}\n\n${document.getElementById('card-signature').innerText}`;
+            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoUrl;
+            showShareMessage('האימייל נפתח');
+        }
+        
+        function shareViaLink() {
+            // Generate URL with parameters based on current card state
+            const message = encodeURIComponent(document.getElementById('message').value);
+            const signature = encodeURIComponent(document.getElementById('signature').value);
+            const bgType = document.getElementById('background-type').value;
+            const textColor = encodeURIComponent(document.getElementById('text-color').value);
+            const fontFamily = encodeURIComponent(document.getElementById('font-family').value);
+            const fontSize = encodeURIComponent(document.getElementById('font-size').value);
+            const fontStyle = encodeURIComponent(document.getElementById('font-style').value);
+            const website = encodeURIComponent(document.getElementById('website').value);
+            const websiteText = encodeURIComponent(document.getElementById('website-text').value);
+            
+            // Background info
+            let bgInfo = '';
+            if (bgType === 'color') {
+                bgInfo = encodeURIComponent(currentBackground);
+            } else if (bgType === 'gradient') {
+                bgInfo = encodeURIComponent(currentBackground);
+            } else if (bgType === 'pattern') {
+                bgInfo = encodeURIComponent(currentBackground);
+            }
+            
+            const shareableUrl = `${window.location.href.split('?')[0]}?msg=${message}&sig=${signature}&bgType=${bgType}&bgInfo=${bgInfo}&txtColor=${textColor}&font=${fontFamily}&fontSize=${fontSize}&fontStyle=${fontStyle}&website=${website}&websiteText=${websiteText}`;
+            
+            // העתקה ללוח
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = shareableUrl;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            showShareMessage('הקישור הועתק ללוח');
+        }
+        
+        function shareViaImage() {
+            // Use html2canvas to create an image
+            html2canvas(document.getElementById('card-preview')).then(canvas => {
+                // Create a download link
+                const link = document.createElement('a');
+                link.download = 'כרטיס-ברכה.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                showShareMessage('התמונה נשמרה למחשב שלך');
+            });
+        }
+        
+        // Load card from URL parameters
+        function loadCardFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('msg')) {
+                const message = decodeURIComponent(urlParams.get('msg'));
+                document.getElementById('message').value = message;
+                updateCardMessage();
+            }
+            
+            if (urlParams.has('sig')) {
+                const signature = decodeURIComponent(urlParams.get('sig'));
+                document.getElementById('signature').value = signature;
+                updateCardSignature();
+            }
+            
+            if (urlParams.has('bgType')) {
+                const bgType = urlParams.get('bgType');
+                document.getElementById('background-type').value = bgType;
+                changeBackgroundType();
+                
+                if (urlParams.has('bgInfo')) {
+                    const bgInfo = decodeURIComponent(urlParams.get('bgInfo'));
+                    if (bgType === 'color') {
+                        setBackgroundColor(bgInfo);
+                    } else if (bgType === 'gradient') {
+                        setBackgroundGradient(bgInfo);
+                    } else if (bgType === 'pattern') {
+                        setBackgroundPattern(bgInfo);
+                    }
+                }
+            }
+            
+            if (urlParams.has('txtColor')) {
+                const textColor = decodeURIComponent(urlParams.get('txtColor'));
+                document.getElementById('text-color').value = textColor;
+                setTextColor(textColor);
+            }
+            
+            if (urlParams.has('font')) {
+                const fontFamily = decodeURIComponent(urlParams.get('font'));
+                document.getElementById('font-family').value = fontFamily;
+                setFontFamily(fontFamily);
+            }
+            
+            if (urlParams.has('fontSize')) {
+                const fontSize = decodeURIComponent(urlParams.get('fontSize'));
+                document.getElementById('font-size').value = fontSize;
+                setFontSize(fontSize);
+            }
+            
+            if (urlParams.has('fontStyle')) {
+                const fontStyle = decodeURIComponent(urlParams.get('fontStyle'));
+                document.getElementById('font-style').value = fontStyle;
+                setFontStyle(fontStyle);
+            }
+            
+            if (urlParams.has('website')) {
+                const website = decodeURIComponent(urlParams.get('website'));
+                document.getElementById('website').value = website;
+            }
+            
+            if (urlParams.has('websiteText')) {
+                const websiteText = decodeURIComponent(urlParams.get('websiteText'));
+                document.getElementById('website-text').value = websiteText;
+            }
+            
+            // Update website link after all parameters are loaded
+            updateWebsiteLink();
+        }
+        
+        function showShareMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'share-message';
+            messageElement.textContent = message;
+            document.body.appendChild(messageElement);
+            
+            // הצג את ההודעה
+            setTimeout(() => {
+                messageElement.style.display = 'block';
+            }, 100);
+            
+            // הסר את ההודעה אחרי 3 שניות
+            setTimeout(() => {
+                messageElement.style.opacity = '0';
+                messageElement.style.transition = 'opacity 0.5s';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 500);
+            }, 3000);
+            
+            // סגור את חלון השיתוף
+            closeShareOptions();
+        }
+    </script>
+</body>
+</html>
