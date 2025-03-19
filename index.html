@@ -1061,6 +1061,72 @@
     });
 }
 
+// הוסף את הקוד הזה בסוף קובץ ה-JavaScript הקיים
+document.addEventListener('DOMContentLoaded', function() {
+    // אתר את כפתור השיתוף והוסף לו מאזין אירועים
+    const shareButton = document.querySelector('button.share');
+    if (shareButton) {
+        shareButton.addEventListener('click', function() {
+            // הפעל את פונקציית השיתוף החדשה
+            shareCardFunction();
+        });
+    } else {
+        console.error('כפתור השיתוף לא נמצא בדף');
+    }
+});
+
+// פונקציית שיתוף חדשה עם שם אחר כדי למנוע התנגשויות
+function shareCardFunction() {
+    console.log('כפתור השיתוף נלחץ'); // בדיקה בקונסול
+    
+    // יצירת תמונה של הכרטיס
+    html2canvas(document.getElementById('card-preview')).then(async function(canvas) {
+        // המרת הכרטיס לתמונה
+        const cardImage = canvas.toDataURL('image/png');
+        
+        // בדיקה האם יש תמיכה ב-Web Share API
+        if (navigator.share) {
+            try {
+                // המרת תמונת ה-base64 לקובץ
+                const response = await fetch(cardImage);
+                const blob = await response.blob();
+                const imageFile = new File([blob], 'wishweaver-card.png', { type: 'image/png' });
+                
+                // בדיקה אם אפשר לשתף את הקובץ
+                const shareData = {
+                    title: 'כרטיס ברכה מ-WishWeaver',
+                    text: 'שלחתי לך כרטיס ברכה מיוחד!'
+                };
+                
+                // נסה להוסיף את הקובץ אם אפשר
+                if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+                    shareData.files = [imageFile];
+                } else {
+                    shareData.url = window.location.href;
+                }
+                
+                await navigator.share(shareData);
+                return; // אם השיתוף הצליח - יוצאים מהפונקציה
+            } catch (error) {
+                console.log('שגיאה בשיתוף:', error);
+                // המשך לשיטה החלופית
+            }
+        }
+        
+        // אם אין תמיכה או היתה שגיאה - הצג חלון שיתוף פשוט
+        alert('הכרטיס מוכן לשיתוף! מוריד את התמונה...');
+        
+        // הורד את התמונה
+        const link = document.createElement('a');
+        link.href = cardImage;
+        link.download = 'wishweaver-card.png';
+        link.click();
+    }).catch(function(error) {
+        console.error('שגיאה ביצירת תמונת הכרטיס:', error);
+        alert('אירעה שגיאה בעת יצירת תמונת הכרטיס');
+    });
+}
+
         // טעינת כרטיס מפרמטרים בכתובת האתר
         function loadCardFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
