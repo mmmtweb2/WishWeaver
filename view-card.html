@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כרטיס ברכה - WishWeaver</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-attachment: fixed;
+        }
+
+        .card-container {
+            max-width: 100%;
+            width: 600px;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 0 auto;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            background-color: white;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card:hover {
+            transform: rotateY(5deg) translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-content {
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .card-message {
+            font-size: 26px;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            padding: 0 15px;
+        }
+
+        .card-signature {
+            font-size: 20px;
+            font-style: italic;
+        }
+
+        .card-footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+            width: calc(100% - 20px);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .wishweaver-link {
+            font-size: 11px;
+            color: #3498db;
+            opacity: 0.8;
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            text-decoration: none;
+        }
+
+        .wishweaver-link:hover {
+            opacity: 1;
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* כפתורי שיתוף */
+        .share-bar {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .share-button {
+            background: white;
+            color: #555;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .share-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .share-button .icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .download {
+            background: #3498db;
+            color: white;
+        }
+
+        .copy-link {
+            background: #f1c40f;
+            color: #333;
+        }
+
+        /* פוטר */
+        .site-footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #666;
+            font-size: 14px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .site-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .site-footer a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* הודעות משוב */
+        .toast-message {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .success-toast {
+            background-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="card" id="card-content">
+            <div class="card-content">
+                <!-- תוכן הכרטיס יוזן דינמית מהפרמטרים ב-URL -->
+                <div class="card-icon" id="card-icon">🎂</div>
+                <div class="card-message" id="card-message">מאחל לך יום הולדת שמח!</div>
+                <div class="card-signature" id="card-signature">משפחת ישראלי</div>
+                <a href="https://mmmtweb2.github.io/WishWeaver/" target="_blank" class="wishweaver-link">WishWeaver</a>
+            </div>
+        </div>
+        
+        <div class="share-bar">
+            <button class="share-button whatsapp" onclick="shareToWhatsApp()">
+                <span class="icon">📱</span>
+                <span>שתף בוואטסאפ</span>
+            </button>
+            <button class="share-button download" onclick="downloadCard()">
+                <span class="icon">💾</span>
+                <span>הורד תמונה</span>
+            </button>
+            <button class="share-button copy-link" onclick="copyLink()">
+                <span class="icon">🔗</span>
+                <span>העתק קישור</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast-message success-toast" id="toast-message"></div>
+    
+    <div class="site-footer">
+        <p>צפית בכרטיס ברכה מ-WishWeaver | <a href="https://mmmtweb2.github.io/WishWeaver/create" target="_blank">צור כרטיס משלך</a></p>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // טעינת פרמטרים מה-URL ועדכון הכרטיס
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCardFromUrl();
+        });
+        
+        // פונקציה לטעינת נתוני הכרטיס מה-URL
+        function loadCardFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // טעינת הודעה
+            if (urlParams.has('msg')) {
+                const message = decodeURIComponent(urlParams.get('msg'));
+                document.getElementById('card-message').innerText = message;
+            }
+            
+            // טעינת חתימה
+            if (urlParams.has('sig')) {
+                const signature = decodeURIComponent(urlParams.get('sig'));
+                document.getElementById('card-signature').innerText = signature;
+            }
+            
+            // טעינת סוג רקע ומידע
+            if (urlParams.has('bgType') && urlParams.has('bgInfo')) {
+                const bgType = urlParams.get('bgType');
+                const bgInfo = decodeURIComponent(urlParams.get('bgInfo'));
+                
+                if (bgType === 'color') {
+                    document.getElementById('card-content').style.background = bgInfo;
+                    document.getElementById('card-icon').style.display = 'none';
+                } else if (bgType === 'gradient') {
+                    document.getElementById('card-content').style.background = bgInfo;
+                    document.getElementById('card-icon').style.display = 'none';
+                } else if (bgType === 'pattern') {
+                    document.getElementById('card-content').style.cssText = bgInfo;
+                    document.getElementById('card-icon').style.display = 'none';
+                } else if (bgType === 'event') {
+                    setEventBackground(bgInfo);
+                }
+            }
+            
+            // טעינת צבע טקסט
+            if (urlParams.has('txtColor')) {
+                const textColor = decodeURIComponent(urlParams.get('txtColor'));
+                document.getElementById('card-message').style.color = textColor;
+                document.getElementById('card-signature').style.color = textColor;
+            }
+            
+            // טעינת גופן
+            if (urlParams.has('font')) {
+                const fontFamily = decodeURIComponent(urlParams.get('font'));
+                document.getElementById('card-message').style.fontFamily = fontFamily;
+                document.getElementById('card-signature').style.fontFamily = fontFamily;
+            }
+            
+            // טעינת גודל גופן
+            if (urlParams.has('fontSize')) {
+                const fontSize = decodeURIComponent(urlParams.get('fontSize'));
+                document.getElementById('card-message').style.fontSize = fontSize;
+            }
+            
+            // טעינת סגנון גופן
+            if (urlParams.has('fontStyle')) {
+                const fontStyle = decodeURIComponent(urlParams.get('fontStyle'));
+                setFontStyle(fontStyle);
+            }
+        }
+        
+        // הגדרת רקע אירוע
+        function setEventBackground(eventType) {
+            const card = document.getElementById('card-content');
+            const cardIcon = document.getElementById('card-icon');
+            
+            // איפוס כל הרקעים והסגנונות הקודמים
+            card.style = '';
+            
+            // הגדרת רקע ואייקון בהתאם לאירוע
+            switch(eventType) {
+                case 'birthday':
+                    card.style.background = 'linear-gradient(135deg, #FFC107 0%, #FF9800 100%)';
+                    cardIcon.innerHTML = '🎂';
+                    break;
+                case 'wedding':
+                    card.style.background = 'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)';
+                    cardIcon.innerHTML = '💍';
+                    break;
+                case 'newborn':
+                    card.style.background = 'linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%)';
+                    cardIcon.innerHTML = '👶';
+                    break;
+                case 'graduation':
+                    card.style.background = 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)';
+                    cardIcon.innerHTML = '🎓';
+                    break;
+                case 'holiday':
+                    card.style.background = 'linear-gradient(135deg, #42A5F5 0%, #1976D2 100%)';
+                    cardIcon.innerHTML = '✡️';
+                    break;
+                case 'anniversary':
+                    card.style.background = 'linear-gradient(135deg, #EC407A 0%, #C2185B 100%)';
+                    cardIcon.innerHTML = '❤️';
+                    break;
+            }
+            
+            // הצגת האייקון
+            cardIcon.style.display = 'block';
+        }
+        
+        // הגדרת סגנון גופן
+        function setFontStyle(style) {
+            const messageEl = document.getElementById('card-message');
+            const signatureEl = document.getElementById('card-signature');
+            
+            if (style === 'normal') {
+                messageEl.style.fontStyle = 'normal';
+                messageEl.style.fontWeight = 'normal';
+                signatureEl.style.fontWeight = 'normal';
+            } else if (style === 'italic') {
+                messageEl.style.fontStyle = 'italic';
+                messageEl.style.fontWeight = 'normal';
+            } else if (style === 'bold') {
+                messageEl.style.fontStyle = 'normal';
+                messageEl.style.fontWeight = 'bold';
+            } else if (style === 'bold italic') {
+                messageEl.style.fontStyle = 'italic';
+                messageEl.style.fontWeight = 'bold';
+            }
+        }
+        
+        // שיתוף לוואטסאפ
+        function shareToWhatsApp() {
+            const shareText = encodeURIComponent("קיבלתי כרטיס ברכה מיוחד! 🎉");
+            const shareUrl = encodeURIComponent(window.location.href);
+            window.open(`https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`, '_blank');
+        }
+        
+        // הורדת הכרטיס כתמונה
+        function downloadCard() {
+            html2canvas(document.getElementById('card-content'), {
+                scale: 2,
+                allowTaint: true,
+                useCORS: true
+            }).then(function(canvas) {
+                const link = document.createElement('a');
+                link.download = 'wishweaver-card.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                showToast("הכרטיס הורד בהצלחה");
+            });
+        }
+        
+        // העתקת קישור לכרטיס
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                showToast("הקישור הועתק בהצלחה");
+            }, function() {
+                alert("לא הצלחנו להעתיק את הקישור, נסה שוב");
+            });
+        }
+        
+        // הצגת הודעת משוב
+        function showToast(message) {
+            const toast = document.getElementById('toast-message');
+            toast.textContent = message;
+            toast.style.opacity = 1;
+            
+            setTimeout(function() {
+                toast.style.opacity = 0;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
