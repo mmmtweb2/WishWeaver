@@ -884,248 +884,182 @@
         }
         //פונקציית שיתוף
 
+        // פונקציית שיתוף
         function shareCard() {
-    // יצירת תמונה של הכרטיס
-    html2canvas(document.getElementById('card-preview')).then(async canvas => {
-        // המרת הכרטיס לתמונה
-        const cardImage = canvas.toDataURL('image/png');
-        
-        // בדיקה האם יש תמיכה ב-Web Share API
-        if (navigator.share && navigator.canShare) {
-            try {
-                // המרת תמונת ה-base64 לקובץ
-                const response = await fetch(cardImage);
-                const blob = await response.blob();
-                const imageFile = new File([blob], 'wishweaver-card.png', { type: 'image/png' });
-                
-                // בדיקה אם אפשר לשתף את הקובץ
-                if (navigator.canShare({ files: [imageFile] })) {
-                    // שיתוף עם קובץ התמונה
-                    await navigator.share({
-                        title: 'כרטיס ברכה מ-WishWeaver',
-                        text: 'שלחתי לך כרטיס ברכה מיוחד!',
-                        files: [imageFile]
-                    });
-                    return; // אם השיתוף הצליח - יוצאים מהפונקציה
-                } else {
-                    // אם אי אפשר לשתף קבצים - ננסה לשתף רק קישור
-                    await navigator.share({
-                        title: 'כרטיס ברכה מ-WishWeaver',
-                        text: 'שלחתי לך כרטיס ברכה מיוחד!',
-                        url: window.location.href
-                    });
-                    return; // אם השיתוף הצליח - יוצאים מהפונקציה
-                }
-            } catch (error) {
-                console.log('שגיאה בשיתוף:', error);
-                // ממשיכים לשיטה החלופית אם השיתוף נכשל
-            }
-        }
-        
-        // אם אין תמיכה ב-Web Share API או שהשיתוף נכשל - נציג דיאלוג חלופי
-        const shareModal = document.createElement('div');
-        shareModal.className = 'share-modal';
-        shareModal.innerHTML = `
-            <div class="share-overlay"></div>
-            <div class="share-dialog">
-                <h3>שיתוף כרטיס הברכה</h3>
-                <div class="share-preview">
-                    <img src="${cardImage}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                </div>
-                <p>בחר אחת מהאפשרויות:</p>
-                <div class="share-options">
-                    <button class="share-btn" id="download-btn">
-                        <span class="icon">💾</span>
-                        <span>הורד תמונה</span>
-                    </button>
-                    <button class="share-btn" id="whatsapp-btn">
-                        <span class="icon">📱</span>
-                        <span>וואטסאפ</span>
-                    </button>
-                    <button class="share-btn" id="email-btn">
-                        <span class="icon">✉️</span>
-                        <span>אימייל</span>
-                    </button>
-                </div>
-                <button class="close-btn" id="close-share-btn">סגור</button>
-            </div>
-        `;
-        
-        // הוספת סגנון לדיאלוג
-        const style = document.createElement('style');
-        style.textContent = `
-            .share-modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .share-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-            }
-            .share-dialog {
-                position: relative;
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                max-width: 90%;
-                width: 400px;
-                box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
-                z-index: 1;
-                text-align: center;
-            }
-            .share-options {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-                margin: 20px 0;
-            }
-            .share-btn {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 10px;
-                background: #f5f5f5;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-            .share-btn:hover {
-                background: #e0e0e0;
-                transform: translateY(-2px);
-            }
-            .share-btn .icon {
-                font-size: 24px;
-                margin-bottom: 5px;
-            }
-            .close-btn {
-                background: #f44336;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 5px;
-                cursor: pointer;
-                margin-top: 10px;
-            }
-        `;
-        
-        document.head.appendChild(style);
-        document.body.appendChild(shareModal);
-        
-        // הוספת מאזיני אירועים
-        document.getElementById('download-btn').addEventListener('click', function() {
-            const link = document.createElement('a');
-            link.href = cardImage;
-            link.download = 'wishweaver-card.png';
-            link.click();
+            console.log('כפתור השיתוף נלחץ'); // בדיקה בקונסול
             
-            alert('התמונה הורדה בהצלחה!');
-            shareModal.remove();
-        });
-        
-        document.getElementById('whatsapp-btn').addEventListener('click', function() {
-            // פתיחת וואטסאפ ווב - משתף רק קישור (לא ניתן לשתף תמונה באופן ישיר דרך URL)
-            const shareText = encodeURIComponent("כרטיס ברכה מיוחד עבורך! לצפייה בכרטיס: " + window.location.href);
-            window.open(`https://wa.me/?text=${shareText}`, '_blank');
-            shareModal.remove();
-        });
-        
-        document.getElementById('email-btn').addEventListener('click', function() {
-            const subject = encodeURIComponent('כרטיס ברכה מיוחד עבורך');
-            const body = encodeURIComponent('שלחתי לך כרטיס ברכה מיוחד! לצפייה בכרטיס: ' + window.location.href);
-            window.location.href = `mailto:?subject=${subject}&body=${body}`;
-            shareModal.remove();
-        });
-        
-        document.getElementById('close-share-btn').addEventListener('click', function() {
-            shareModal.remove();
-        });
-        
-        document.querySelector('.share-overlay').addEventListener('click', function() {
-            shareModal.remove();
-        });
-    }).catch(error => {
-        console.error('שגיאה ביצירת תמונת הכרטיס:', error);
-        alert('אירעה שגיאה בעת יצירת תמונת הכרטיס');
-    });
-}
-
-// הוסף את הקוד הזה בסוף קובץ ה-JavaScript הקיים
-document.addEventListener('DOMContentLoaded', function() {
-    // אתר את כפתור השיתוף והוסף לו מאזין אירועים
-    const shareButton = document.querySelector('button.share');
-    if (shareButton) {
-        shareButton.addEventListener('click', function() {
-            // הפעל את פונקציית השיתוף החדשה
-            shareCardFunction();
-        });
-    } else {
-        console.error('כפתור השיתוף לא נמצא בדף');
-    }
-});
-
-// פונקציית שיתוף חדשה עם שם אחר כדי למנוע התנגשויות
-function shareCardFunction() {
-    console.log('כפתור השיתוף נלחץ'); // בדיקה בקונסול
-    
-    // יצירת תמונה של הכרטיס
-    html2canvas(document.getElementById('card-preview')).then(async function(canvas) {
-        // המרת הכרטיס לתמונה
-        const cardImage = canvas.toDataURL('image/png');
-        
-        // בדיקה האם יש תמיכה ב-Web Share API
-        if (navigator.share) {
-            try {
-                // המרת תמונת ה-base64 לקובץ
-                const response = await fetch(cardImage);
-                const blob = await response.blob();
-                const imageFile = new File([blob], 'wishweaver-card.png', { type: 'image/png' });
+            // יצירת תמונה של הכרטיס
+            html2canvas(document.getElementById('card-preview')).then(async function(canvas) {
+                // המרת הכרטיס לתמונה
+                const cardImage = canvas.toDataURL('image/png');
                 
-                // בדיקה אם אפשר לשתף את הקובץ
-                const shareData = {
-                    title: 'כרטיס ברכה מ-WishWeaver',
-                    text: 'שלחתי לך כרטיס ברכה מיוחד!'
-                };
-                
-                // נסה להוסיף את הקובץ אם אפשר
-                if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
-                    shareData.files = [imageFile];
-                } else {
-                    shareData.url = window.location.href;
+                // בדיקה האם יש תמיכה ב-Web Share API
+                if (navigator.share) {
+                    try {
+                        // המרת תמונת ה-base64 לקובץ
+                        const response = await fetch(cardImage);
+                        const blob = await response.blob();
+                        const imageFile = new File([blob], 'wishweaver-card.png', { type: 'image/png' });
+                        
+                        // בדיקה אם אפשר לשתף את הקובץ
+                        const shareData = {
+                            title: 'כרטיס ברכה מ-WishWeaver',
+                            text: 'שלחתי לך כרטיס ברכה מיוחד!'
+                        };
+                        
+                        // נסה להוסיף את הקובץ אם אפשר
+                        if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+                            shareData.files = [imageFile];
+                        } else {
+                            shareData.url = window.location.href;
+                        }
+                        
+                        await navigator.share(shareData);
+                        return; // אם השיתוף הצליח - יוצאים מהפונקציה
+                    } catch (error) {
+                        console.log('שגיאה בשיתוף:', error);
+                        // המשך לשיטה החלופית
+                    }
                 }
                 
-                await navigator.share(shareData);
-                return; // אם השיתוף הצליח - יוצאים מהפונקציה
-            } catch (error) {
-                console.log('שגיאה בשיתוף:', error);
-                // המשך לשיטה החלופית
-            }
+                // אם אין תמיכה ב-Web Share API או שהשיתוף נכשל - נציג דיאלוג חלופי
+                const shareModal = document.createElement('div');
+                shareModal.className = 'share-modal';
+                shareModal.innerHTML = `
+                    <div class="share-overlay"></div>
+                    <div class="share-dialog">
+                        <h3>שיתוף כרטיס הברכה</h3>
+                        <div class="share-preview">
+                            <img src="${cardImage}" alt="כרטיס ברכה" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                        </div>
+                        <p>בחר אחת מהאפשרויות:</p>
+                        <div class="share-options">
+                            <button class="share-btn" id="download-btn">
+                                <span class="icon">💾</span>
+                                <span>הורד תמונה</span>
+                            </button>
+                            <button class="share-btn" id="whatsapp-btn">
+                                <span class="icon">📱</span>
+                                <span>וואטסאפ</span>
+                            </button>
+                            <button class="share-btn" id="email-btn">
+                                <span class="icon">✉️</span>
+                                <span>אימייל</span>
+                            </button>
+                        </div>
+                        <button class="close-btn" id="close-share-btn">סגור</button>
+                    </div>
+                `;
+                
+                // הוספת סגנון לדיאלוג
+                const style = document.createElement('style');
+                style.textContent = `
+                    .share-modal {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        z-index: 1000;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .share-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                    }
+                    .share-dialog {
+                        position: relative;
+                        background: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        max-width: 90%;
+                        width: 400px;
+                        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+                        z-index: 1;
+                        text-align: center;
+                    }
+                    .share-options {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 10px;
+                        margin: 20px 0;
+                    }
+                    .share-btn {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        padding: 10px;
+                        background: #f5f5f5;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    .share-btn:hover {
+                        background: #e0e0e0;
+                        transform: translateY(-2px);
+                    }
+                    .share-btn .icon {
+                        font-size: 24px;
+                        margin-bottom: 5px;
+                    }
+                    .close-btn {
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        margin-top: 10px;
+                    }
+                `;
+                
+                document.head.appendChild(style);
+                document.body.appendChild(shareModal);
+                
+                // הוספת מאזיני אירועים
+                document.getElementById('download-btn').addEventListener('click', function() {
+                    const link = document.createElement('a');
+                    link.href = cardImage;
+                    link.download = 'wishweaver-card.png';
+                    link.click();
+                    
+                    alert('התמונה הורדה בהצלחה!');
+                    shareModal.remove();
+                });
+                
+                document.getElementById('whatsapp-btn').addEventListener('click', function() {
+                    // פתיחת וואטסאפ ווב - משתף רק קישור (לא ניתן לשתף תמונה באופן ישיר דרך URL)
+                    const shareText = encodeURIComponent("כרטיס ברכה מיוחד עבורך! לצפייה בכרטיס: " + window.location.href);
+                    window.open(`https://wa.me/?text=${shareText}`, '_blank');
+                    shareModal.remove();
+                });
+                
+                document.getElementById('email-btn').addEventListener('click', function() {
+                    const subject = encodeURIComponent('כרטיס ברכה מיוחד עבורך');
+                    const body = encodeURIComponent('שלחתי לך כרטיס ברכה מיוחד! לצפייה בכרטיס: ' + window.location.href);
+                    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                    shareModal.remove();
+                });
+                
+                document.getElementById('close-share-btn').addEventListener('click', function() {
+                    shareModal.remove();
+                });
+                
+                document.querySelector('.share-overlay').addEventListener('click', function() {
+                    shareModal.remove();
+                });
+            }).catch(function(error) {
+                console.error('שגיאה ביצירת תמונת הכרטיס:', error);
+                alert('אירעה שגיאה בעת יצירת תמונת הכרטיס');
+            });
         }
-        
-        // אם אין תמיכה או היתה שגיאה - הצג חלון שיתוף פשוט
-        alert('הכרטיס מוכן לשיתוף! מוריד את התמונה...');
-        
-        // הורד את התמונה
-        const link = document.createElement('a');
-        link.href = cardImage;
-        link.download = 'wishweaver-card.png';
-        link.click();
-    }).catch(function(error) {
-        console.error('שגיאה ביצירת תמונת הכרטיס:', error);
-        alert('אירעה שגיאה בעת יצירת תמונת הכרטיס');
-    });
-}
 
         // טעינת כרטיס מפרמטרים בכתובת האתר
         function loadCardFromUrl() {
